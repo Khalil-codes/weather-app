@@ -13,7 +13,7 @@ import Head from "next/head";
 
 const WeatherApp: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ weather, error }) => {
+> = ({ weather, error, icon, name }) => {
   if (error || !weather)
     return (
       <>
@@ -24,17 +24,21 @@ const WeatherApp: NextPage<
       </>
     );
 
-  const locationName = weather.name;
   return (
     <>
       <Head>
-        <title>Weather App - {locationName}</title>
+        <title>Weather App - {name}</title>
+        <link
+          rel="icon"
+          type="image/png"
+          href={`http://openweathermap.org/img/wn/${icon}@2x.png`}
+        />
       </Head>
       <Wrapper>
         <h1 className="text-3xl font-bold text-center text-gray-800">
           Weather App
         </h1>
-        <Search location={locationName} />
+        <Search location={name || ""} />
         <TemperatureDisplay
           weather={weather.weather[0]}
           temperature={weather.main.temp}
@@ -58,7 +62,13 @@ export const getServerSideProps = async (
     props: {
       weather: weather,
       error: error,
-      ...(!error ? { key: weather?.name } : {}),
+      ...(!error
+        ? {
+            key: weather?.name,
+            icon: weather?.weather?.[0]?.icon,
+            name: weather?.name,
+          }
+        : {}),
     },
   };
 };
